@@ -1,6 +1,6 @@
 ﻿const APP_DATA = {
   usuarios: [
-    { id: 'director',   nombre: 'Norcenter',            rol: 'director',   pin: '1111' },
+    { id: 'director',   nombre: 'Admin',                rol: 'director',   pin: '1111' },
     { id: 'produccion', nombre: 'Encargado Producción', rol: 'produccion', pin: '2222' },
     { id: 'logistica',  nombre: 'Logística',            rol: 'logistica',  pin: '3333' },
   ],
