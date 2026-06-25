@@ -216,7 +216,7 @@ function renderResumen() {
     puntos[p].total += v.valor || 0;
   });
 
-  const puntoLabels = { NOR: 'Norcenter', REC: 'Recta', ONL: 'Online', AD: 'Adrogué', TIG: 'Tigre' };
+  const puntoLabels = { NOR: 'Local Norcenter', REC: 'Recomendación', ONL: 'Online', AD: 'Cartera A. Daniel', TIG: 'Local Tigre' };
 
   let html = `<div class="section-title">Ventas - Junio 2026</div>`;
 
