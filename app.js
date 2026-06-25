@@ -350,15 +350,10 @@ async function fetchProduccionFromSheets() {
   try {
     const res = await fetch(PRODUCCION_SHEETS_URL);
     const data = await res.json();
-    const semanas = Object.keys(data);
-    if (semanas.length === 0) {
-      $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--red)">Sin datos: el script devolvió objeto vacío.</div>';
-      return;
-    }
     APP_DATA.produccion = data;
     renderProduccion();
   } catch(e) {
-    $('view-produccion').innerHTML = `<div class="content" style="text-align:center;padding:40px;color:var(--red)">Error: ${e.message}</div>`;
+    $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--red)">Error al cargar producción. Revisá la conexión.</div>';
   }
 }
 
