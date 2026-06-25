@@ -141,8 +141,9 @@
     { id: 4, fecha: '26/06', horario: 'Llamar antes',    tarea: 'Buscar muestrario Candy (Bruno Camila)',        direccion: 'Carlos Gardel 1777, Olivos',                                                    contacto: '115893-2068',  observacion: '',         hecho: false },
     { id: 5, fecha: '26/06', horario: 'Durante el día',  tarea: 'Llevar sierra sin fin a Afiladora',            direccion: '',                                                                              contacto: '',             observacion: '',         hecho: false },
     { id: 6, fecha: '26/06', horario: 'Durante el día',  tarea: 'Comprar 25 resortes de 4 vueltas (Daniel)',    direccion: '',                                                                              contacto: '',             observacion: 'Alplast / Dist. San Fer.', hecho: false },
-    { id: 7, fecha: '26/06', horario: 'Durante el día',  tarea: 'Buscar tele en Rocha',                         direccion: '',                                                                              contacto: '',             observacion: '',         hecho: false },
-    { id: 8, fecha: '26/06', horario: 'Durante el día',  tarea: 'Comprar lijas para lijadora, papel higiénico, cierres (muestras en oficina)', direccion: '', contacto: '', observacion: '', hecho: false },
+    { id: 7, fecha: '26/06', horario: 'Durante el día',  tarea: 'Buscar tele en Rocha',                                                        direccion: '',  contacto: '1135559357',  observacion: '',         hecho: false },
+    { id: 8, fecha: '26/06', horario: 'Durante el día',  tarea: 'Comprar lijas para lijadora, papel higiénico, cierres (muestras en oficina)', direccion: '',  contacto: '',            observacion: '',         hecho: false },
+    { id: 9, fecha: '26/06', horario: '9 a 12:30 y 15:30 a 17hs', tarea: 'Liniers y Billoch (Farmacia Arballos) — Entregar tele que retira en Rocha, a nombre de Francisco Podestá', direccion: '', contacto: '1164842712', observacion: '', hecho: false },
   ],
 
   telas: [
