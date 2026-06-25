@@ -95,7 +95,7 @@ function setupNavForRole(rol) {
   switchView(defaults[rol] || 'produccion');
 }
 
-const SHEETS_URL          = 'https://script.google.com/macros/s/AKfycbwNp2KmcqosfM6LdqOTsS5oJU0DuVtps2qSOxlHhKCZt2ytxvizoqzDNdkUwK_5txBs/exec';
+const SHEETS_URL          = 'https://script.google.com/macros/s/AKfycbyHRnQswNA5KNrWWdM_XcNeXQnOJRVLFmgVsGU_JF7qyWf2HeOZ2HovHeFcxzGYfXSGzQ/exec';
 const LOGISTICA_SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbwOFVu3dcmmyobns0YrF30zIVhR3KO0W790ueS6r46_tphOjjSL73WxKEsXzoOwZSDRiw/exec';
 const PRODUCCION_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzK_ZKefyRlisgYAgTK09FrD6_iuW3joUQIviNd0xnTATM3Xn_FKA5h94NNmx6LfTblpA/exec';
 
