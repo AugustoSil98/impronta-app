@@ -96,7 +96,8 @@ function setupNavForRole(rol) {
 }
 
 const SHEETS_URL          = 'https://script.google.com/macros/s/AKfycbwNp2KmcqosfM6LdqOTsS5oJU0DuVtps2qSOxlHhKCZt2ytxvizoqzDNdkUwK_5txBs/exec';
-const LOGISTICA_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwOFVu3dcmmyobns0YrF30zIVhR3KO0W790ueS6r46_tphOjjSL73WxKEsXzoOwZSDRiw/exec';
+const LOGISTICA_SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbwOFVu3dcmmyobns0YrF30zIVhR3KO0W790ueS6r46_tphOjjSL73WxKEsXzoOwZSDRiw/exec';
+const PRODUCCION_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzK_ZKefyRlisgYAgTK09FrD6_iuW3joUQIviNd0xnTATM3Xn_FKA5h94NNmx6LfTblpA/exec';
 
 function colorToEstado(hex) {
   const h = (hex || '').toLowerCase().replace('#', '');
@@ -168,7 +169,7 @@ function switchView(view) {
 
 function renderView(view) {
   if (view === 'resumen')    renderResumen();
-  if (view === 'produccion') renderProduccion();
+  if (view === 'produccion') fetchProduccionFromSheets();
   if (view === 'telas')      fetchTelasFromSheets();
   if (view === 'logistica')  fetchLogisticaFromSheets();
   if (view === 'chat')       renderChat();
@@ -344,6 +345,18 @@ function buildTablaResumen() {
 }
 
 // ── PRODUCCION ──
+async function fetchProduccionFromSheets() {
+  $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--text2)">Actualizando producción...</div>';
+  try {
+    const res = await fetch(PRODUCCION_SHEETS_URL);
+    const data = await res.json();
+    APP_DATA.produccion = data;
+    renderProduccion();
+  } catch(e) {
+    $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--red)">Error al cargar producción. Revisá la conexión.</div>';
+  }
+}
+
 function renderProduccion() {
   const semanas = Object.keys(APP_DATA.produccion);
   const opList  = ['AGUSTIN', 'FRANCIS', 'LUIS', 'NICOLAS'];
