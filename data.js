@@ -4,6 +4,7 @@
     { id: 'produccion', nombre: 'Encargado Producción', rol: 'produccion', pin: '2222' },
     { id: 'logistica',  nombre: 'Logística',            rol: 'logistica',  pin: '3333' },
   ],
+  ventas: [],
 
   // Estados posibles: 'en_proceso' | 'funda' | 'terminado'
   produccion: {

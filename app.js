@@ -98,6 +98,7 @@ function setupNavForRole(rol) {
 const SHEETS_URL          = 'https://script.google.com/macros/s/AKfycbyTykntodYWTnswdmTryGFzKNdxLAVS1RfWpf1BzBVnSe6sQ8DMVSOgei7T0ClfrX6JMQ/exec';
 const LOGISTICA_SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbycF4XhSDJi1vEWahoCI45Aiy3zkNeDXMyDTlXuAVSOXzUX1PV0KRunDcgHKnqz6XGYww/exec';
 const PRODUCCION_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxxsWAYfSvb1laOTYrWC429SpELdjQ6WRHLBwbn5tL2_R-C--gISC0iiBMq_Hl9HG7srw/exec';
+const VENTAS_SHEETS_URL     = 'https://script.google.com/macros/s/AKfycbw_LDG5SLDuh7m6nM2c3nyFHxmAaIdOJbq44VYMyUWlKtWDKBEzide1dj5xq7H_iDP1/exec';
 
 function colorToEstado(hex) {
   const h = (hex || '').toLowerCase().replace('#', '');
@@ -168,11 +169,22 @@ function switchView(view) {
 }
 
 function renderView(view) {
-  if (view === 'resumen')    renderResumen();
+  if (view === 'resumen')    fetchResumenData();
   if (view === 'produccion') fetchProduccionFromSheets();
   if (view === 'telas')      fetchTelasFromSheets();
   if (view === 'logistica')  fetchLogisticaFromSheets();
   if (view === 'chat')       renderChat();
+}
+
+async function fetchResumenData() {
+  $('view-resumen').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--text2)">Cargando...</div>';
+  try {
+    const res = await fetch(VENTAS_SHEETS_URL);
+    APP_DATA.ventas = await res.json();
+  } catch(e) {
+    APP_DATA.ventas = [];
+  }
+  renderResumen();
 }
 
 // ── DEDUPLICAR ──
@@ -188,68 +200,79 @@ function deduplicar(pedidos) {
   return [...map.values()];
 }
 
-// ── RESUMEN (Director) ──
+// ── RESUMEN (Admin) ──
 function renderResumen() {
-  const semanas = Object.keys(APP_DATA.produccion);
-  const opList  = ['AGUSTIN', 'FRANCIS', 'LUIS', 'NICOLAS'];
+  const ventas = APP_DATA.ventas || [];
+  const fmt = v => v >= 1000000 ? '$' + (v/1000000).toFixed(1) + 'M' : v > 0 ? '$' + (v/1000).toFixed(0) + 'k' : '-';
 
-  let totalPedidos = 0, enProceso = 0, fundaCount = 0, terminadoCount = 0, totalValor = 0;
-  semanas.forEach(sem => {
-    opList.forEach(op => {
-      (APP_DATA.produccion[sem][op] || []).forEach(p => {
-        totalPedidos++;
-        if (p.estado === 'en_proceso') enProceso++;
-        if (p.estado === 'funda')     fundaCount++;
-        if (p.estado === 'terminado') terminadoCount++;
-        totalValor += p.valor || 0;
-      });
-    });
+  const totalVentas = ventas.reduce((s, v) => s + (v.valor || 0), 0);
+
+  // Por punto de venta
+  const puntos = {};
+  ventas.forEach(v => {
+    const p = v.punto || 'Otro';
+    if (!puntos[p]) puntos[p] = { count: 0, total: 0 };
+    puntos[p].count++;
+    puntos[p].total += v.valor || 0;
   });
 
-  let html = `
-    <div class="section-title">Este mes - Junio 2026</div>
-    <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-label">Total pedidos</div><div class="kpi-value">${totalPedidos}</div></div>
-      <div class="kpi-card"><div class="kpi-label">Facturacion</div><div class="kpi-value" style="font-size:17px;color:var(--gold)">$${(totalValor/1000000).toFixed(0)}M</div></div>
-      <div class="kpi-card"><div class="kpi-label">EN PROCESO</div><div class="kpi-value" style="color:var(--yellow)">${enProceso}</div></div>
-      <div class="kpi-card"><div class="kpi-label">TERMINADOS</div><div class="kpi-value" style="color:var(--blue)">${terminadoCount}</div></div>
-    </div>
-    <div class="section-title" style="margin-top:8px">Produccion por operario</div>`;
+  const puntoLabels = { NOR: 'Norcenter', REC: 'Recta', ONL: 'Online', AD: 'Adrogué', TIG: 'Tigre' };
 
-  opList.forEach(op => {
-    let opPedidos = 0, opValor = 0, opTerminados = 0;
-    semanas.forEach(sem => {
-      (APP_DATA.produccion[sem][op] || []).forEach(p => {
-        opPedidos++;
-        opValor += p.valor || 0;
-        if (p.estado === 'funda' || p.estado === 'terminado') opTerminados++;
-      });
-    });
-    const pct = opPedidos > 0 ? Math.round((opTerminados / opPedidos) * 100) : 0;
-    html += `
-      <div class="card">
-        <div class="card-header">
-          <div><div class="card-title">${op.charAt(0) + op.slice(1).toLowerCase()}</div>
-          <div class="card-sub">${opPedidos} pedidos · $${(opValor/1000000).toFixed(1)}M</div></div>
-          <div class="badge ${pct >= 70 ? 'badge-green' : pct >= 40 ? 'badge-yellow' : 'badge-red'}">${pct}%</div>
-        </div>
-        <div class="progress-wrap">
-          <div class="progress-label"><span>Avance</span><span>${opTerminados}/${opPedidos}</span></div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-        </div>
-      </div>`;
-  });
+  let html = `<div class="section-title">Ventas - Junio 2026</div>`;
 
-  let pendTelas = 0;
-  Object.values(APP_DATA.telas).forEach(arr => arr.forEach(t => { if (!t.llego) pendTelas++; }));
-  html += `
-    <div class="section-title" style="margin-top:8px">Telas</div>
-    <div class="card">
-      <div class="card-header">
-        <div><div class="card-title">Telas pendientes</div><div class="card-sub">Sin confirmar llegada</div></div>
-        <div class="badge badge-yellow">${pendTelas}</div>
+  // KPIs
+  html += `<div class="kpi-grid" style="margin-bottom:14px">
+    <div class="kpi-card"><div class="kpi-label">Total ventas</div><div class="kpi-value" style="font-size:20px;color:var(--gold)">${fmt(totalVentas)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Operaciones</div><div class="kpi-value">${ventas.length}</div></div>
+  </div>`;
+
+  // Por punto de venta
+  html += `<div class="section-title" style="margin-top:4px">Por punto de venta</div>
+  <div class="card" style="margin-bottom:14px">`;
+  const puntosOrdenados = Object.entries(puntos).sort((a,b) => b[1].total - a[1].total);
+  const maxTotal = puntosOrdenados[0]?.[1].total || 1;
+  puntosOrdenados.forEach(([key, val]) => {
+    const pct = Math.round((val.total / maxTotal) * 100);
+    html += `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-weight:600">${puntoLabels[key] || key}</span>
+        <span style="color:var(--gold);font-weight:700">${fmt(val.total)}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;height:5px;background:var(--border);border-radius:3px">
+          <div style="width:${pct}%;height:5px;background:var(--beige);border-radius:3px"></div>
+        </div>
+        <span style="font-size:11px;color:var(--text2)">${val.count} op.</span>
       </div>
     </div>`;
+  });
+  html += `</div>`;
+
+  // Tabla de ventas
+  html += `<div class="section-title">Detalle de ventas</div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:var(--bg3);color:var(--text2)">
+          <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700">FECHA</th>
+          <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700">CLIENTE</th>
+          <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700">MODELO</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700">VALOR</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  [...ventas].reverse().forEach(v => {
+    const fecha = String(v.fecha).replace(/-/g,'/').slice(0,8);
+    html += `<tr style="border-top:1px solid var(--border)">
+      <td style="padding:9px 10px;color:var(--text2);white-space:nowrap">${fecha}</td>
+      <td style="padding:9px 10px;font-weight:600">${v.nombre}</td>
+      <td style="padding:9px 10px;color:var(--text2)">${v.modelo}</td>
+      <td style="padding:9px 10px;text-align:right;color:var(--gold);font-weight:700">${fmt(v.valor)}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
 
   $('view-resumen').innerHTML = '<div class="content">' + html + '</div>';
 }
