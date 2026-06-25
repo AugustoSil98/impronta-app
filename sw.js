@@ -1,4 +1,4 @@
-const CACHE = 'impronta-v3';
+const CACHE = 'impronta-v4';
 const ASSETS = ['/', '/index.html', '/app.js', '/styles.css'];
 
 self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
