@@ -97,7 +97,7 @@ function setupNavForRole(rol) {
 
 const SHEETS_URL          = 'https://script.google.com/macros/s/AKfycbyTykntodYWTnswdmTryGFzKNdxLAVS1RfWpf1BzBVnSe6sQ8DMVSOgei7T0ClfrX6JMQ/exec';
 const LOGISTICA_SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbwOFVu3dcmmyobns0YrF30zIVhR3KO0W790ueS6r46_tphOjjSL73WxKEsXzoOwZSDRiw/exec';
-const PRODUCCION_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzK_ZKefyRlisgYAgTK09FrD6_iuW3joUQIviNd0xnTATM3Xn_FKA5h94NNmx6LfTblpA/exec';
+const PRODUCCION_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzN1zMi2t2kmaDIpH_JnZsLgB6ekC9q3GJoq_HXKjXEg8H400HzrYkY1lI9Vjivw--tEQ/exec';
 
 function colorToEstado(hex) {
   const h = (hex || '').toLowerCase().replace('#', '');
