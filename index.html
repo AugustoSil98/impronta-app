@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f0f0f">
+  <title>Impronta Sillones</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Impronta">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="screen">
+  <div class="login-logo-wrap">
+    <div class="login-logo-main">Impronta</div>
+    <div class="login-logo-divider"></div>
+    <div class="login-logo-sub">Sillones</div>
+  </div>
+  <div class="login-label">Seleccioná tu área</div>
+  <div class="roles-grid">
+    <div class="role-btn" data-rol="director">
+      <div class="role-icon">👔</div>
+      <div class="role-name">Director</div>
+    </div>
+    <div class="role-btn" data-rol="produccion">
+      <div class="role-icon">🪑</div>
+      <div class="role-name">Producción</div>
+    </div>
+    <div class="role-btn" data-rol="logistica">
+      <div class="role-icon">🚚</div>
+      <div class="role-name">Logística</div>
+    </div>
+  </div>
+
+  <div class="pin-section" id="pin-section" style="display:none">
+    <div class="pin-display">
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+    </div>
+    <div class="pin-pad">
+      <div class="pin-key" data-v="1">1</div>
+      <div class="pin-key" data-v="2">2</div>
+      <div class="pin-key" data-v="3">3</div>
+      <div class="pin-key" data-v="4">4</div>
+      <div class="pin-key" data-v="5">5</div>
+      <div class="pin-key" data-v="6">6</div>
+      <div class="pin-key" data-v="7">7</div>
+      <div class="pin-key" data-v="8">8</div>
+      <div class="pin-key" data-v="9">9</div>
+      <div class="pin-key" data-v="del" style="grid-column:1">⌫</div>
+      <div class="pin-key" data-v="0">0</div>
+      <div class="pin-key" style="background:none;border-color:transparent"></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="screen hidden">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">Impronta</div>
+      <div class="topbar-sub">Sillones</div>
+      <div class="topbar-role" id="topbar-role">—</div>
+    </div>
+    <button class="logout-btn" id="logout-btn">Salir</button>
+  </div>
+
+  <!-- VIEWS -->
+  <div style="flex:1;overflow:hidden;position:relative">
+
+    <!-- Resumen (Director) -->
+    <div id="view-resumen" class="view hidden"></div>
+
+    <!-- Producción -->
+    <div id="view-produccion" class="view hidden"></div>
+
+    <!-- Telas / Logística -->
+    <div id="view-telas" class="view hidden"></div>
+
+    <!-- Logística -->
+    <div id="view-logistica" class="view hidden"></div>
+
+    <!-- Chat (todos) -->
+    <div id="view-chat" class="view hidden"></div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="nav">
+    <div class="nav-item" data-view="resumen" data-roles="director">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">Resumen</div>
+    </div>
+    <div class="nav-item" data-view="produccion" data-roles="director,produccion">
+      <div class="nav-icon">🪑</div>
+      <div class="nav-label">Producción</div>
+    </div>
+    <div class="nav-item" data-view="telas" data-roles="director,produccion">
+      <div class="nav-icon">🧵</div>
+      <div class="nav-label">Telas</div>
+    </div>
+    <div class="nav-item" data-view="logistica" data-roles="director,logistica">
+      <div class="nav-icon">🚛</div>
+      <div class="nav-label">Mis Tareas</div>
+    </div>
+    <div class="nav-item" data-view="chat" data-roles="director,produccion,logistica">
+      <div class="nav-icon">💬</div>
+      <div class="nav-label">Chat</div>
+    </div>
+  </div>
+</div>
+
+<style>
+.view { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.view.hidden { display: none; }
+</style>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
