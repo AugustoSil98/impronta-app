@@ -95,7 +95,8 @@ function setupNavForRole(rol) {
   switchView(defaults[rol] || 'produccion');
 }
 
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwNp2KmcqosfM6LdqOTsS5oJU0DuVtps2qSOxlHhKCZt2ytxvizoqzDNdkUwK_5txBs/exec';
+const SHEETS_URL          = 'https://script.google.com/macros/s/AKfycbwNp2KmcqosfM6LdqOTsS5oJU0DuVtps2qSOxlHhKCZt2ytxvizoqzDNdkUwK_5txBs/exec';
+const LOGISTICA_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwOFVu3dcmmyobns0YrF30zIVhR3KO0W790ueS6r46_tphOjjSL73WxKEsXzoOwZSDRiw/exec';
 
 function colorToEstado(hex) {
   const h = (hex || '').toLowerCase().replace('#', '');
@@ -169,7 +170,7 @@ function renderView(view) {
   if (view === 'resumen')    renderResumen();
   if (view === 'produccion') renderProduccion();
   if (view === 'telas')      fetchTelasFromSheets();
-  if (view === 'logistica')  renderLogistica();
+  if (view === 'logistica')  fetchLogisticaFromSheets();
   if (view === 'chat')       renderChat();
 }
 
@@ -591,6 +592,33 @@ window.toggleTela = function(idx, campo) {
 };
 
 // ── LOGÍSTICA ──
+async function fetchLogisticaFromSheets() {
+  $('view-logistica').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--text2)">Actualizando tareas...</div>';
+  try {
+    const res = await fetch(LOGISTICA_SHEETS_URL);
+    const rows = await res.json();
+    const saved = JSON.parse(localStorage.getItem('impronta_tareas') || '[]');
+    APP_DATA.tareas = rows.map((r, i) => {
+      const key = r.fecha + '|' + r.tarea;
+      const s = saved.find(x => x.key === key);
+      return {
+        id: i + 1,
+        fecha:       r.fecha,
+        horario:     r.horario,
+        tarea:       r.tarea,
+        direccion:   r.direccion,
+        contacto:    r.contacto,
+        observacion: r.observacion,
+        hecho:       s ? s.hecho : false,
+      };
+    });
+    renderLogistica();
+  } catch(e) {
+    $('view-logistica').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--red)">Error al cargar tareas. Revisá la conexión.</div>';
+  }
+}
+
+
 function renderLogistica() {
   const tareas = APP_DATA.tareas;
   const canToggle = currentUser.rol === 'logistica' || currentUser.rol === 'director';
@@ -663,7 +691,7 @@ function renderLogistica() {
 
 window.toggleTarea = function(idx) {
   APP_DATA.tareas[idx].hecho = !APP_DATA.tareas[idx].hecho;
-  localStorage.setItem('impronta_tareas', JSON.stringify(APP_DATA.tareas.map(t => ({ id: t.id, hecho: t.hecho }))));
+  localStorage.setItem('impronta_tareas', JSON.stringify(APP_DATA.tareas.map(t => ({ key: t.fecha + '|' + t.tarea, hecho: t.hecho }))));
   renderLogistica();
 };
 
