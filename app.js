@@ -419,9 +419,7 @@ async function fetchPresentismoFromSheets() {
 }
 
 function renderPresentismo() {
-  const todos = APP_DATA.presentismo || [];
-  const opList = ['AGUSTIN','FRANCISCO','LUIS','NICOLAS'];
-  const ops = todos.filter(e => opList.includes((e.nombre||'').toUpperCase()));
+  const ops = APP_DATA.presentismo || [];
   const estadoColor = { presente:'var(--green)', falta:'var(--red)', feriado:'var(--yellow)', vacaciones:'var(--blue)', finde:'var(--border)' };
 
   let totalP = 0, totalF = 0;
