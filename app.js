@@ -111,7 +111,7 @@ const SHEETS_URL          = 'https://script.google.com/macros/s/AKfycbyTykntodYW
 const LOGISTICA_SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbycF4XhSDJi1vEWahoCI45Aiy3zkNeDXMyDTlXuAVSOXzUX1PV0KRunDcgHKnqz6XGYww/exec';
 const PRODUCCION_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxxsWAYfSvb1laOTYrWC429SpELdjQ6WRHLBwbn5tL2_R-C--gISC0iiBMq_Hl9HG7srw/exec';
 const VENTAS_SHEETS_URL      = 'https://script.google.com/macros/s/AKfycbw_LDG5SLDuh7m6nM2c3nyFHxmAaIdOJbq44VYMyUWlKtWDKBEzide1dj5xq7H_iDP1/exec';
-const PRESENTISMO_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyx8U5N9Czervy7zeZAaFg3Msu-EbFIMrxtle5xQLEt6RGXeRp4tTyRPuROBWvg1UW7/exec';
+const PRESENTISMO_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxLQmHDZyErvfzUqBj6Vt8sgpgHQgINM9bDFlovbFySj2V_UtA2ktqAEgU83afblHGt/exec';
 
 function colorToEstado(hex) {
   const h = (hex || '').toLowerCase().replace('#', '');
