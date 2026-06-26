@@ -385,16 +385,13 @@ function buildTablaResumen() {
 async function fetchProduccionFromSheets() {
   $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--text2)">Actualizando...</div>';
   try {
-    const [resProd, resPres] = await Promise.all([
-      fetch(PRODUCCION_SHEETS_URL),
-      fetch(PRESENTISMO_SHEETS_URL)
-    ]);
-    APP_DATA.produccion   = await resProd.json();
-    APP_DATA.presentismo  = await resPres.json();
-  } catch(e) {
-    $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--red)">Error al cargar. Revisá la conexión.</div>';
-    return;
-  }
+    const res = await fetch(PRODUCCION_SHEETS_URL);
+    APP_DATA.produccion = await res.json();
+  } catch(e) {}
+  try {
+    const res2 = await fetch(PRESENTISMO_SHEETS_URL);
+    APP_DATA.presentismo = await res2.json();
+  } catch(e) {}
   if (produccionTab === 'presentismo') renderPresentismo();
   else renderProduccion();
 }
