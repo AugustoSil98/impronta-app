@@ -7,7 +7,6 @@ let selectedProv = 'Express';
 let pin = '';
 let selectedRole = null;
 let desglosOpen = false;
-let produccionTab = 'produccion';
 
 let chatMessages = JSON.parse(localStorage.getItem('impronta_chat') || '[]');
 if (chatMessages.length === 0) {
@@ -111,8 +110,7 @@ function setupNavForRole(rol) {
 const SHEETS_URL          = 'https://script.google.com/macros/s/AKfycbyTykntodYWTnswdmTryGFzKNdxLAVS1RfWpf1BzBVnSe6sQ8DMVSOgei7T0ClfrX6JMQ/exec';
 const LOGISTICA_SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbycF4XhSDJi1vEWahoCI45Aiy3zkNeDXMyDTlXuAVSOXzUX1PV0KRunDcgHKnqz6XGYww/exec';
 const PRODUCCION_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxxsWAYfSvb1laOTYrWC429SpELdjQ6WRHLBwbn5tL2_R-C--gISC0iiBMq_Hl9HG7srw/exec';
-const VENTAS_SHEETS_URL       = 'https://script.google.com/macros/s/AKfycbw_LDG5SLDuh7m6nM2c3nyFHxmAaIdOJbq44VYMyUWlKtWDKBEzide1dj5xq7H_iDP1/exec';
-const PRESENTISMO_SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbyx8U5N9Czervy7zeZAaFg3Msu-EbFIMrxtle5xQLEt6RGXeRp4tTyRPuROBWvg1UW7/exec';
+const VENTAS_SHEETS_URL     = 'https://script.google.com/macros/s/AKfycbw_LDG5SLDuh7m6nM2c3nyFHxmAaIdOJbq44VYMyUWlKtWDKBEzide1dj5xq7H_iDP1/exec';
 
 function colorToEstado(hex) {
   const h = (hex || '').toLowerCase().replace('#', '');
@@ -383,100 +381,16 @@ function buildTablaResumen() {
 
 // ── PRODUCCION ──
 async function fetchProduccionFromSheets() {
-  $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--text2)">Actualizando...</div>';
+  $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--text2)">Actualizando producción...</div>';
   try {
-    const [resProd, resPres] = await Promise.all([
-      fetch(PRODUCCION_SHEETS_URL),
-      fetch(PRESENTISMO_SHEETS_URL)
-    ]);
-    APP_DATA.produccion   = await resProd.json();
-    APP_DATA.presentismo  = await resPres.json();
+    const res = await fetch(PRODUCCION_SHEETS_URL);
+    const data = await res.json();
+    APP_DATA.produccion = data;
+    renderProduccion();
   } catch(e) {
-    $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--red)">Error al cargar. Revisá la conexión.</div>';
-    return;
+    $('view-produccion').innerHTML = '<div class="content" style="text-align:center;padding:40px;color:var(--red)">Error al cargar producción. Revisá la conexión.</div>';
   }
-  if (produccionTab === 'presentismo') renderPresentismo();
-  else renderProduccion();
 }
-
-function renderPresentismo() {
-  const todos = APP_DATA.presentismo || [];
-  const opList = ['AGUSTIN','FRANCISCO','LUIS','NICOLAS'];
-  const operarios = todos.filter(e => opList.includes(e.nombre.toUpperCase()));
-
-  const estadoColor = { presente: 'var(--green)', falta: 'var(--red)', feriado: 'var(--yellow)', vacaciones: 'var(--blue)', finde: 'var(--border)' };
-  const estadoLabel = { presente: 'P', falta: 'F', feriado: 'Fe', vacaciones: 'V', finde: '' };
-
-  let totalPresente = 0, totalFaltas = 0;
-  operarios.forEach(op => { totalPresente += op.presente; totalFaltas += op.faltas; });
-
-  let html = buildProduccionTabs();
-  html += `<div class="kpi-grid" style="margin-bottom:14px">
-    <div class="kpi-card"><div class="kpi-label" style="color:var(--green)">Asistencias</div><div class="kpi-value" style="color:var(--green)">${totalPresente}</div></div>
-    <div class="kpi-card"><div class="kpi-label" style="color:var(--red)">Faltas</div><div class="kpi-value" style="color:var(--red)">${totalFaltas}</div></div>
-  </div>`;
-
-  operarios.forEach(op => {
-    const total = op.presente + op.faltas;
-    const pct = total > 0 ? Math.round((op.presente / total) * 100) : 100;
-    const barC = pct >= 90 ? 'var(--green)' : pct >= 75 ? 'var(--yellow)' : 'var(--red)';
-
-    html += `<div class="card" style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div>
-          <div style="font-weight:700;font-size:15px">${op.nombre.charAt(0)+op.nombre.slice(1).toLowerCase()}</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px">${op.presente} presentes · <span style="color:var(--red)">${op.faltas} faltas</span></div>
-        </div>
-        <div style="font-size:20px;font-weight:800;color:${barC}">${pct}%</div>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px">`;
-
-    (op.dias || []).forEach(d => {
-      if (d.estado === 'finde') return;
-      const color = estadoColor[d.estado] || 'var(--border)';
-      const label = estadoLabel[d.estado] || '';
-      html += `<div style="width:26px;height:26px;border-radius:5px;background:${color};opacity:${d.estado==='feriado'?'0.7':'1'};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff" title="Día ${d.dia}">${d.dia}</div>`;
-    });
-
-    html += `</div>
-      <div style="height:5px;background:var(--border);border-radius:3px">
-        <div style="width:${pct}%;height:5px;background:${barC};border-radius:3px"></div>
-      </div>
-    </div>`;
-  });
-
-  html += `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;margin-bottom:16px">
-    <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:12px;border-radius:3px;background:var(--green)"></div><span style="font-size:11px;color:var(--text2)">Presente</span></div>
-    <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:12px;border-radius:3px;background:var(--red)"></div><span style="font-size:11px;color:var(--text2)">Falta</span></div>
-    <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:12px;border-radius:3px;background:var(--yellow)"></div><span style="font-size:11px;color:var(--text2)">Feriado</span></div>
-    <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:12px;border-radius:3px;background:var(--blue)"></div><span style="font-size:11px;color:var(--text2)">Vacaciones</span></div>
-  </div>`;
-
-  $('view-produccion').innerHTML = '<div class="content">' + html + '</div>';
-}
-
-function buildProduccionTabs() {
-  return `<div style="display:flex;gap:8px;margin-bottom:16px">
-    <div onclick="switchProduccionTab('produccion')" style="flex:1;text-align:center;padding:10px;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px;
-      background:${produccionTab==='produccion'?'var(--beige)':'var(--bg2)'};
-      color:${produccionTab==='produccion'?'#1e1c1b':'var(--text2)'};
-      border:1.5px solid ${produccionTab==='produccion'?'var(--beige)':'var(--border)'}">
-      🪑 Producción
-    </div>
-    <div onclick="switchProduccionTab('presentismo')" style="flex:1;text-align:center;padding:10px;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px;
-      background:${produccionTab==='presentismo'?'var(--beige)':'var(--bg2)'};
-      color:${produccionTab==='presentismo'?'#1e1c1b':'var(--text2)'};
-      border:1.5px solid ${produccionTab==='presentismo'?'var(--beige)':'var(--border)'}">
-      📋 Presentismo
-    </div>
-  </div>`;
-}
-
-window.switchProduccionTab = function(tab) {
-  produccionTab = tab;
-  if (tab === 'presentismo') renderPresentismo();
-  else renderProduccion();
-};
 
 function renderProduccion() {
   const semanas = Object.keys(APP_DATA.produccion);
@@ -518,7 +432,7 @@ function renderProduccion() {
       <div class="pedido-valor">${fmt(p.valor)}</div>
     </div>`;
 
-  let html = buildProduccionTabs() + buildTablaResumen();
+  let html = buildTablaResumen();
 
   // Barra de avance global
   html += `

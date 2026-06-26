@@ -5,7 +5,6 @@
     { id: 'logistica',  nombre: 'Logística',            rol: 'logistica',  pin: '3333' },
   ],
   ventas: [],
-  presentismo: [],
 
   // Estados posibles: 'en_proceso' | 'funda' | 'terminado'
   produccion: {
