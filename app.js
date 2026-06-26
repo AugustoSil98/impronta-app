@@ -1,7 +1,7 @@
 // ── STATE ──
 let currentUser = null;
 let currentView = 'produccion';
-let selectedWeek = '01/06';
+let selectedWeek = detectCurrentWeek();
 let selectedOp = 'AGUSTIN';
 let selectedProv = 'Express';
 let pin = '';
@@ -19,6 +19,18 @@ if (chatMessages.length === 0) {
 
 // ── UTILS ──
 const $ = id => document.getElementById(id);
+
+function detectCurrentWeek() {
+  const weeks = ['01/06','08/06','15/06','22/06'];
+  const now = new Date();
+  const day = now.getDate();
+  const month = now.getMonth() + 1;
+  if (month !== 6) return weeks[weeks.length - 1];
+  if (day >= 22) return '22/06';
+  if (day >= 15) return '15/06';
+  if (day >= 8)  return '08/06';
+  return '01/06';
+}
 const fmtVal = v => v > 0 ? '$' + (v / 1000000).toFixed(1) + 'M' : '-';
 
 const estadoColor = e => ({
@@ -711,6 +723,7 @@ function renderLogistica() {
           <div style="flex:1">
             <div style="font-weight:600;color:${t.hecho ? 'var(--green)' : 'var(--text)'};${t.hecho ? 'text-decoration:line-through;opacity:0.7' : ''}">${t.tarea}</div>
             ${t.horario ? `<div style="font-size:11px;color:var(--gold);margin-top:2px">🕐 ${t.horario}</div>` : ''}
+            ${t.hecho && t.horaHecho ? `<div style="font-size:11px;color:var(--green);margin-top:2px">✓ Completado a las ${t.horaHecho}</div>` : ''}
             ${t.direccion ? `<div style="font-size:11px;color:var(--text2);margin-top:2px">📍 ${t.direccion}</div>` : ''}
             ${t.contacto && t.contacto !== '-' ? `<div style="font-size:11px;color:var(--text2);margin-top:2px">📞 ${t.contacto}</div>` : ''}
             ${t.observacion ? `<div style="font-size:11px;color:var(--text2);margin-top:2px">📝 ${t.observacion}</div>` : ''}
@@ -726,8 +739,15 @@ function renderLogistica() {
 }
 
 window.toggleTarea = function(idx) {
-  APP_DATA.tareas[idx].hecho = !APP_DATA.tareas[idx].hecho;
-  localStorage.setItem('impronta_tareas', JSON.stringify(APP_DATA.tareas.map(t => ({ key: t.fecha + '|' + t.tarea, hecho: t.hecho }))));
+  const t = APP_DATA.tareas[idx];
+  t.hecho = !t.hecho;
+  if (t.hecho) {
+    const now = new Date();
+    t.horaHecho = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  } else {
+    t.horaHecho = null;
+  }
+  localStorage.setItem('impronta_tareas', JSON.stringify(APP_DATA.tareas.map(t => ({ key: t.fecha + '|' + t.tarea, hecho: t.hecho, horaHecho: t.horaHecho || null }))));
   renderLogistica();
 };
 
@@ -775,6 +795,27 @@ window.sendMsg = function() {
   input.value = '';
   renderChat();
 };
+
+// ── PULL TO REFRESH ──
+(function() {
+  let startY = 0, pulling = false;
+  document.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (!pulling) return;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy > 80 && currentUser) {
+      const el = document.querySelector('.view:not(.hidden)');
+      if (el) {
+        const scrollTop = el.querySelector('.content') ? el.querySelector('.content').scrollTop : el.scrollTop;
+        if (scrollTop <= 0) renderView(currentView);
+      }
+    }
+    pulling = false;
+  }, { passive: true });
+})();
 
 // ── INIT ──
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
